@@ -14,9 +14,8 @@ import {
   ProgressBar,
   HeaderButton,
   Content,
-  CardsContainer,
   Card,
-  CardPlayer,
+  CardContent,
   FeedbackButtons,
   HeaderContent,
   Player,
@@ -58,43 +57,41 @@ const DashboardCard: React.FC = () => {
         </HeaderContent>
       </Header>
       <Content>
-        <CardsContainer>
-          <Card>
-            <div>
+        <Card>
+          <div>
+            <button type="button">
+              <FiArrowUpCircle />
+              Virar carta
+            </button>
+            <strong>
+              A\
+              <span>B</span>
+            </strong>
+          </div>
+
+          <CardContent>
+            <h1>
+              Lorem ipsum dolor sit amet, consectetur
+              <br />
+              adipiscing elit, sed do eiusmod tempor.
+            </h1>
+            <Player>
+              <span>0:30</span>
+              <img src={waveImg} alt="wave" />
               <button type="button">
-                <FiArrowUpCircle />
-                Virar carta
+                <FiPlay />
               </button>
-              <strong>
-                A\
-                <span>B</span>
-              </strong>
-            </div>
+            </Player>
+          </CardContent>
+        </Card>
+        <FeedbackButtons>
+          <button type="button">Fácil</button>
+          <button type="button">Bom</button>
 
-            <CardPlayer>
-              <h1>
-                Lorem ipsum dolor sit amet, consectetur
-                <br />
-                adipiscing elit, sed do eiusmod tempor.
-              </h1>
-              <Player>
-                <span>0:30</span>
-                <img src={waveImg} alt="wave" />
-                <button type="button">
-                  <FiPlay />
-                </button>
-              </Player>
-            </CardPlayer>
-          </Card>
-          <FeedbackButtons>
-            <button type="button">Fácil</button>
-            <button type="button">Bom</button>
+          <button type="button">Difícil</button>
 
-            <button type="button">Difícil</button>
-
-            <button type="button">Não lembro</button>
-          </FeedbackButtons>
-        </CardsContainer>
+          <button type="button">Não lembro</button>
+        </FeedbackButtons>
       </Content>
     </Container>
   );
