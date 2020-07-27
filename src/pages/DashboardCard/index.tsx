@@ -17,6 +17,7 @@ import {
 import logoImg from '../../assets/logo.svg';
 import playImg from '../../assets/play.svg';
 import waveImg from '../../assets/waveImg.svg';
+import cardFlip from '../../assets/cardFlip.svg';
 
 const DashboardCard: React.FC = () => {
   return (
@@ -54,18 +55,19 @@ const DashboardCard: React.FC = () => {
         <Card>
           <CardHeader>
             <button type="button">
-              <FiArrowUp />
+              <img src={cardFlip} alt="Girar Card" />
               Virar Carta
             </button>
             <strong>
-              A\
-              <span>B</span>
+              A \
+{' '}
+<span> B</span>
             </strong>
           </CardHeader>
           <CardContent>
             <h1>
-              Lorem Ipsum sit amet consectetur adipiscing elite sed do eiusmundo
-              tempor
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor.
             </h1>
             <Player>
               <span>0:30</span>
@@ -77,10 +79,10 @@ const DashboardCard: React.FC = () => {
           </CardContent>
         </Card>
         <FeedbackButtons>
-          <button type="button">Fácil</button>
-          <button type="button">Bom</button>
-          <button type="button">Difícil</button>
-          <button type="button">Não lembro</button>
+          <button type="button">FÁCIL</button>
+          <button type="button">BOM</button>
+          <button type="button">DIFÍCIL</button>
+          <button type="button">NÃO LEMBRO</button>
         </FeedbackButtons>
       </Content>
     </Container>
