@@ -1,26 +1,21 @@
 import React from 'react';
-import {
-  FiArrowLeft,
-  FiInfo,
-  FiCommand,
-  FiArrowUpCircle,
-  FiPlay,
-} from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { FiArrowLeft, FiInfo, FiCommand, FiArrowUp } from 'react-icons/fi';
 import {
   Container,
   Header,
-  NavigationBack,
-  ProgressContainer,
+  HeaderContent,
   ProgressBar,
   HeaderButton,
   Content,
   Card,
+  CardHeader,
   CardContent,
-  FeedbackButtons,
-  HeaderContent,
   Player,
+  FeedbackButtons,
 } from './styles';
 import logoImg from '../../assets/logo.svg';
+import playImg from '../../assets/play.svg';
 import waveImg from '../../assets/waveImg.svg';
 
 const DashboardCard: React.FC = () => {
@@ -28,58 +23,55 @@ const DashboardCard: React.FC = () => {
     <Container>
       <Header>
         <HeaderContent>
-          <NavigationBack>
+          <Link to="/back">
             <FiArrowLeft />
-            <strong>Sair</strong>
-          </NavigationBack>
-          <ProgressContainer>
-            <button type="button">Deck:Fast Thinking Drill Lorem</button>
-            <ProgressBar>
+            Sair
+          </Link>
+          <ProgressBar>
+            <button type="button">Deck Fast Thinking Drill Lorem...</button>
+            <div className="ProgressContent">
               <span>1%</span>
-              <div className="progress" />
-            </ProgressBar>
-            <p>
+            </div>
+            <strong>
               10/
               <span>12</span>
-            </p>
-          </ProgressContainer>
-
+            </strong>
+          </ProgressBar>
           <HeaderButton>
             <FiInfo />
-            <a href="/façaUmTour"> Faça um Tour</a>
+            Faça um Tour
           </HeaderButton>
           <HeaderButton>
             <FiCommand />
-            <a href="/façaUmTour"> Controles</a>
+            Controles
           </HeaderButton>
-          <HeaderButton />
-          <img src={logoImg} alt="Hackit" />
+          <button type="button">
+            <img src={logoImg} alt="Hackit" />
+          </button>
         </HeaderContent>
       </Header>
       <Content>
         <Card>
-          <div>
+          <CardHeader>
             <button type="button">
-              <FiArrowUpCircle />
-              Virar carta
+              <FiArrowUp />
+              Virar Carta
             </button>
             <strong>
               A\
               <span>B</span>
             </strong>
-          </div>
-
+          </CardHeader>
           <CardContent>
             <h1>
-              Lorem ipsum dolor sit amet, consectetur
-              <br />
-              adipiscing elit, sed do eiusmod tempor.
+              Lorem Ipsum sit amet consectetur adipiscing elite sed do eiusmundo
+              tempor
             </h1>
             <Player>
               <span>0:30</span>
               <img src={waveImg} alt="wave" />
               <button type="button">
-                <FiPlay />
+                <img src={playImg} alt="play" />
               </button>
             </Player>
           </CardContent>
@@ -87,9 +79,7 @@ const DashboardCard: React.FC = () => {
         <FeedbackButtons>
           <button type="button">Fácil</button>
           <button type="button">Bom</button>
-
           <button type="button">Difícil</button>
-
           <button type="button">Não lembro</button>
         </FeedbackButtons>
       </Content>
