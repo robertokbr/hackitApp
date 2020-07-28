@@ -26,6 +26,6 @@ h1{
 
 button{
   cursor: pointer;
-
+  outline:0;
 }
 `;

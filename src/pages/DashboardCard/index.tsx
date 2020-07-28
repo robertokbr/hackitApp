@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft, FiInfo, FiCommand, FiArrowUp } from 'react-icons/fi';
 import {
@@ -20,18 +20,29 @@ import waveImg from '../../assets/waveImg.svg';
 import cardFlip from '../../assets/cardFlip.svg';
 
 const DashboardCard: React.FC = () => {
+  const [progress, setProgress] = useState(() => {
+    const a = 0.9;
+    const num = a * 100;
+    const n = num.toFixed(2);
+    return n;
+  });
   return (
     <Container>
       <Header>
         <HeaderContent>
           <Link to="/back">
-            <FiArrowLeft />
+            <FiArrowLeft size={20} />
             Sair
           </Link>
-          <ProgressBar>
-            <button type="button">Deck Fast Thinking Drill Lorem...</button>
-            <div className="ProgressContent">
-              <span>1%</span>
+          <ProgressBar progress={progress}>
+            <button type="button">
+              Deck:
+              <span>Fast Thinking Drill Lorem...</span>
+            </button>
+            <div>
+              <div>
+                <span>1%</span>
+              </div>
             </div>
             <strong>
               10/
