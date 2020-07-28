@@ -20,12 +20,7 @@ import waveImg from '../../assets/waveImg.svg';
 import cardFlip from '../../assets/cardFlip.svg';
 
 const DashboardCard: React.FC = () => {
-  const [progress, setProgress] = useState(() => {
-    const a = 0.9;
-    const num = a * 100;
-    const n = num.toFixed(2);
-    return n;
-  });
+  const [progress, setProgress] = useState(10);
   return (
     <Container>
       <Header>
@@ -40,13 +35,12 @@ const DashboardCard: React.FC = () => {
               <span>Fast Thinking Drill Lorem...</span>
             </button>
             <div>
-              <div>
-                <span>1%</span>
-              </div>
+              <div />
+              <span>1%</span>
             </div>
             <strong>
-              10/
-              <span>12</span>
+              {progress}
+/<span>100%</span>
             </strong>
           </ProgressBar>
           <HeaderButton>
@@ -57,9 +51,9 @@ const DashboardCard: React.FC = () => {
             <FiCommand />
             Controles
           </HeaderButton>
-          <button type="button">
+          <HeaderButton>
             <img src={logoImg} alt="Hackit" />
-          </button>
+          </HeaderButton>
         </HeaderContent>
       </Header>
       <Content>
@@ -70,9 +64,7 @@ const DashboardCard: React.FC = () => {
               Virar Carta
             </button>
             <strong>
-              A \
-{' '}
-<span> B</span>
+              A \ <span> B</span>
             </strong>
           </CardHeader>
           <CardContent>
@@ -83,7 +75,12 @@ const DashboardCard: React.FC = () => {
             <Player>
               <span>0:30</span>
               <img src={waveImg} alt="wave" />
-              <button type="button">
+              <button
+                type="button"
+                onClick={() => {
+                  setProgress(progress + 10);
+                }}
+              >
                 <img src={playImg} alt="play" />
               </button>
             </Player>

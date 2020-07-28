@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { shade } from 'polished';
 
 interface ProgressProps {
-  progress: string;
+  progress: number;
 }
 
 export const Container = styled.div`
@@ -64,12 +64,12 @@ export const ProgressBar = styled.div<ProgressProps>`
     > span {
       position: absolute;
       color: white;
-      left: 5%;
+      margin-left: 16px;
     }
     div {
       background: #1bd46f;
       width: ${props => props.progress}%;
-      border-radius: 34px 0 0 34px;
+      transition: 0.5s;
     }
   }
   strong {
