@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'hackit.app',
+  baseURL: 'https://hackit.app',
 });
 
 export default api;

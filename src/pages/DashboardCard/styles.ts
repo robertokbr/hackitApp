@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 import { shade } from 'polished';
+import { animated as a } from 'react-spring';
 
+interface AnimationProps {
+  visible?: boolean;
+}
 interface ProgressProps {
   progress: number;
 }
@@ -100,8 +104,9 @@ export const Content = styled.main`
   max-width: 948px;
   max-height: 668px;
   margin: 146px auto;
+  position: relative;
 `;
-export const Card = styled.div`
+export const Card = styled(a.div)<AnimationProps>`
   display: flex;
   flex-direction: column;
   height: 480px;
@@ -112,6 +117,12 @@ export const Card = styled.div`
   border-radius: 20px;
   box-shadow: 0px 15px 80px -60px #32788d;
   border: 1px solid #d6daeb;
+  & + .front {
+    background: black;
+    position: absolute;
+    top: 0%;
+    visibility: ${props => (props.visible ? 'hidden' : 'visible')};
+  }
 `;
 export const CardHeader = styled.div`
   display: flex;
