@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft, FiInfo, FiCommand, FiArrowUp } from 'react-icons/fi';
-import axios from 'axios';
 import { useSpring } from 'react-spring';
 import {
   Container,
@@ -44,11 +43,9 @@ interface ApiData {
 const DashboardCard: React.FC = () => {
   const [progress, setProgress] = useState(10);
   const [cardId, setCardId] = useState(10);
-  const [visible, setVisible] = useState(true);
   const [flipped, setFlipped] = useState(false);
   const { transform, opacity } = useSpring({
     opacity: flipped ? 1 : 0,
-    visibility: flipped ? 'visible' : 'visible',
     transform: `perspective(600px) rotatey(${flipped ? 180 : 0}deg)`,
     config: { mass: 5, tension: 500, friction: 80 },
   });
@@ -74,6 +71,14 @@ const DashboardCard: React.FC = () => {
     });
     console.log(response.json());
   }
+
+  const handleFlipCard = useCallback(() => {
+    setFlipped(state => !state);
+  }, []);
+  const handleResetCard = useCallback(() => {
+    setFlipped(state => !state);
+    console.log('next card');
+  }, []);
 
   return (
     <Container>
@@ -111,7 +116,7 @@ const DashboardCard: React.FC = () => {
       </Header>
       <Content>
         <Card
-          visible={visible}
+          visible={Number(!flipped)}
           className="c back"
           style={{
             opacity: opacity.interpolate(o => 1 - (o as number)),
@@ -119,14 +124,7 @@ const DashboardCard: React.FC = () => {
           }}
         >
           <CardHeader>
-            <button
-              type="button"
-              onClick={() => {
-                setVisible(!visible);
-                setFlipped(!flipped);
-                console.log(visible);
-              }}
-            >
+            <button type="button" onClick={handleFlipCard}>
               <img src={cardFlip} alt="Girar Card" />
               Virar Carta
             </button>
@@ -156,7 +154,7 @@ const DashboardCard: React.FC = () => {
         </Card>
 
         <Card
-          visible={visible}
+          visible={Number(!flipped)}
           className="c front"
           style={{
             opacity,
@@ -164,13 +162,7 @@ const DashboardCard: React.FC = () => {
           }}
         >
           <CardHeader>
-            <button
-              type="button"
-              onClick={() => {
-                setFlipped(!flipped);
-                setVisible(!visible);
-              }}
-            >
+            <button type="button" onClick={handleFlipCard}>
               <img src={cardFlip} alt="Girar Card" />
               Virar Carta
             </button>
@@ -197,11 +189,19 @@ const DashboardCard: React.FC = () => {
             </Player>
           </CardContent>
         </Card>
-        <FeedbackButtons>
-          <button type="button">FÁCIL</button>
-          <button type="button">BOM</button>
-          <button type="button">DIFÍCIL</button>
-          <button type="button">NÃO LEMBRO</button>
+        <FeedbackButtons visible={Number(!flipped)}>
+          <button type="button" onClick={handleResetCard}>
+            FÁCIL
+          </button>
+          <button type="button" onClick={handleResetCard}>
+            BOM
+          </button>
+          <button type="button" onClick={handleResetCard}>
+            DIFÍCIL
+          </button>
+          <button type="button" onClick={handleResetCard}>
+            NÃO LEMBRO
+          </button>
         </FeedbackButtons>
       </Content>
     </Container>

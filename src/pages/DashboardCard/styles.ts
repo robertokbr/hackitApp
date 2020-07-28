@@ -1,13 +1,23 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { shade } from 'polished';
 import { animated as a } from 'react-spring';
 
 interface AnimationProps {
-  visible?: boolean;
+  visible: number;
 }
 interface ProgressProps {
   progress: number;
 }
+
+const buttonStyle = {
+  pressable: css`
+    background: #00aee0;
+    color: #ffffff;
+    &:hover {
+      background: ${shade(0.2, '#00AEE0')};
+    }
+  `,
+};
 
 export const Container = styled.div`
   background: transparent linear-gradient(180deg, #fafcfe 0%, #f4fdff 100%) 0%
@@ -177,12 +187,13 @@ export const Player = styled.div`
     border: none;
     background: #00aee0;
     transition: 0.2s;
+
     &:hover {
       background: ${shade(0.2, '#00aee0')};
     }
   }
 `;
-export const FeedbackButtons = styled.section`
+export const FeedbackButtons = styled.section<AnimationProps>`
   display: flex;
   justify-content: space-between;
   max-width: 852px;
@@ -191,15 +202,18 @@ export const FeedbackButtons = styled.section`
   button {
     height: 80px;
     width: 180px;
-    background: #aad0db1a;
     border: 2px solid #80b7c726;
     border-radius: 10px;
-    color: #b7d3db;
     font-size: 18px;
     transition: 0.2s;
+
+    background: #aad0db1a;
+    color: #b7d3db;
 
     &:hover {
       background: ${shade(0.03, '#aad0db1a')};
     }
+
+    ${props => !props.visible && buttonStyle.pressable}
   }
 `;
