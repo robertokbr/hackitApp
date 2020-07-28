@@ -75,10 +75,12 @@ const DashboardCard: React.FC = () => {
   const handleFlipCard = useCallback(() => {
     setFlipped(state => !state);
   }, []);
-  const handleResetCard = useCallback(() => {
+  const handleResetCard = useCallback(async () => {
+    if (!flipped) return;
     setFlipped(state => !state);
+
     console.log('next card');
-  }, []);
+  }, [flipped]);
 
   return (
     <Container>
@@ -189,18 +191,28 @@ const DashboardCard: React.FC = () => {
             </Player>
           </CardContent>
         </Card>
-        <FeedbackButtons visible={Number(!flipped)}>
-          <button type="button" onClick={handleResetCard}>
+        <FeedbackButtons visible={Number(flipped)}>
+          <button
+            onKeyPress={event => {
+              console.log(event.target);
+            }}
+            type="button"
+            onClick={handleResetCard}
+          >
             FÁCIL
+            <span>Digite 1</span>
           </button>
           <button type="button" onClick={handleResetCard}>
             BOM
+            <span>Digite 2</span>
           </button>
           <button type="button" onClick={handleResetCard}>
             DIFÍCIL
+            <span>Digite 3</span>
           </button>
           <button type="button" onClick={handleResetCard}>
             NÃO LEMBRO
+            <span>Digite 4</span>
           </button>
         </FeedbackButtons>
       </Content>

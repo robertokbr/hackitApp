@@ -16,6 +16,9 @@ const buttonStyle = {
     &:hover {
       background: ${shade(0.2, '#00AEE0')};
     }
+    span {
+      opacity: 1;
+    }
   `,
 };
 
@@ -39,17 +42,19 @@ export const HeaderContent = styled.div`
     font-size: 15px;
     color: #f33660;
     padding: 30px 40px;
-    font-weight: bold;
     text-decoration: none;
+    font-weight: 700;
   }
   svg {
     margin-right: 8px;
   }
 `;
 export const ProgressBar = styled.div<ProgressProps>`
+  flex: 1;
   height: 100%;
+  max-width: 1314px;
   display: flex;
-  padding: 0 32px;
+  padding: 0 34px;
   align-items: center;
   font-size: 14px;
   border-right: 1px solid #c9deea;
@@ -200,20 +205,29 @@ export const FeedbackButtons = styled.section<AnimationProps>`
   height: 108px;
   margin: 0 auto;
   button {
+    position: relative;
+    font-weight: 700;
     height: 80px;
     width: 180px;
     border: 2px solid #80b7c726;
     border-radius: 10px;
     font-size: 18px;
     transition: 0.2s;
-
     background: #aad0db1a;
     color: #b7d3db;
-
     &:hover {
       background: ${shade(0.03, '#aad0db1a')};
     }
+    span {
+      font-weight: 200;
+      position: absolute;
+      bottom: -50%;
+      right: 32%;
+      color: #b2b2b2;
+      font-style: italic;
+      opacity: 0;
+    }
 
-    ${props => !props.visible && buttonStyle.pressable}
+    ${props => props.visible && buttonStyle.pressable}
   }
 `;
