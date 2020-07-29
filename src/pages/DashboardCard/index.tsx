@@ -1,9 +1,11 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowLeft, FiInfo, FiCommand, FiArrowUp } from 'react-icons/fi';
+import { FiArrowLeft, FiCommand, FiArrowUp } from 'react-icons/fi';
+import { FaInfoCircle, FaTools } from 'react-icons/fa';
 import { useSpring } from 'react-spring';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
+import Axios from 'axios';
 import {
   Container,
   Header,
@@ -20,58 +22,48 @@ import {
 import logoImg from '../../assets/logo.svg';
 import playImg from '../../assets/play.svg';
 import waveImg from '../../assets/waveImg.svg';
+import configIcon from '../../assets/configIcon.svg';
 import cardFlip from '../../assets/cardFlip.svg';
+import api from '../../services/api';
+import apiDataFake from '../../services/fakeData.json';
 
+interface FeedbackButtonData {
+  cardIndex: number;
+  feedbackdata: string;
+}
 interface CardsData {
-  id: number;
   cardId: number;
-  noteType: number;
-  fieldNumber: number;
+  dateCreated: number;
+  dateUpdated: number;
   field: string;
   fieldName: string;
-  dateCreated: Date;
-  dateUpdated: Date;
+  fieldNumber: number;
+  id: number;
+  noteType: number;
 }
 
 interface NotesData {
   notes: CardsData[];
 }
 
-interface ApiData {
-  apiData: NotesData[];
-}
-
 const DashboardCard: React.FC = () => {
   const [progress, setProgress] = useState(10);
-  const [cardId, setCardId] = useState(10);
+  const [frontCards, setFrontCards] = useState([]);
   const [flipped, setFlipped] = useState(false);
+  const [feedbackData, setFeedbackData] = useState<FeedbackButtonData[]>([]);
   const { transform, opacity } = useSpring({
     opacity: flipped ? 1 : 0,
     transform: `perspective(600px) rotatey(${flipped ? 180 : 0}deg)`,
     config: { mass: 5, tension: 500, friction: 80 },
   });
 
-  async function postData(
-    url = 'https://hackit.app/login',
-    data = {
+  useEffect(() => {
+    const apiData = Axios.post('https://hackit.app/login', {
       email: 'qa14@hackit.app',
       password: 'qa14',
-    },
-  ): Promise<void> {
-    const response = await fetch(url, {
-      method: 'POST',
-      mode: 'cors',
-      cache: 'no-cache',
-      credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      redirect: 'follow',
-      referrerPolicy: 'no-referrer',
-      body: JSON.stringify(data),
-    });
-    console.log(response.json());
-  }
+    }).then(response => response.data);
+    console.log(apiData);
+  }, []);
 
   const handleFlipCard = useCallback(() => {
     setFlipped(state => !state);
@@ -81,7 +73,7 @@ const DashboardCard: React.FC = () => {
       if (!flipped) return;
       setFlipped(state => !state);
 
-      console.log(key);
+      setProgress(state => state + 10);
     },
     [flipped],
   );
@@ -104,15 +96,15 @@ const DashboardCard: React.FC = () => {
               <span>1%</span>
             </div>
             <strong>
-              {progress}/<span>100%</span>
+              {progress / 10}/<span>12</span>
             </strong>
           </ProgressBar>
           <HeaderButton>
-            <FiInfo />
+            <FaInfoCircle />
             Faça um Tour
           </HeaderButton>
           <HeaderButton>
-            <FiCommand />
+            <img src={configIcon} alt="Config" />
             Controles
           </HeaderButton>
           <HeaderButton>
@@ -138,7 +130,7 @@ const DashboardCard: React.FC = () => {
               A \ <span>B</span>
             </strong>
           </CardHeader>
-          <CardContent>
+          <CardContent visible={Number(flipped)}>
             <h1>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor.
@@ -146,13 +138,7 @@ const DashboardCard: React.FC = () => {
             <Player>
               <span>0:30</span>
               <img src={waveImg} alt="wave" />
-              <button
-                type="button"
-                onClick={() => {
-                  postData();
-                  setProgress(progress + 10);
-                }}
-              >
+              <button type="button">
                 <img src={playImg} alt="play" />
               </button>
             </Player>
@@ -173,10 +159,14 @@ const DashboardCard: React.FC = () => {
               Virar Carta
             </button>
             <strong>
-              A \ <span>B</span>
+              <span>B \</span> A
             </strong>
           </CardHeader>
-          <CardContent>
+          <CardContent visible={Number(flipped)}>
+            <h3>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor.
+            </h3>
             <h1>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor.
@@ -184,12 +174,7 @@ const DashboardCard: React.FC = () => {
             <Player>
               <span>0:30</span>
               <img src={waveImg} alt="wave" />
-              <button
-                type="button"
-                onClick={() => {
-                  setProgress(progress + 10);
-                }}
-              >
+              <button type="button">
                 <img src={playImg} alt="play" />
               </button>
             </Player>
