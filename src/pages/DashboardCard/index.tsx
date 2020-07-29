@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft, FiInfo, FiCommand, FiArrowUp } from 'react-icons/fi';
 import { useSpring } from 'react-spring';
+import KeyboardEventHandler from 'react-keyboard-event-handler';
 import {
   Container,
   Header,
@@ -75,12 +76,15 @@ const DashboardCard: React.FC = () => {
   const handleFlipCard = useCallback(() => {
     setFlipped(state => !state);
   }, []);
-  const handleResetCard = useCallback(async () => {
-    if (!flipped) return;
-    setFlipped(state => !state);
+  const handleResetCard = useCallback(
+    (key: number) => {
+      if (!flipped) return;
+      setFlipped(state => !state);
 
-    console.log('next card');
-  }, [flipped]);
+      console.log(key);
+    },
+    [flipped],
+  );
 
   return (
     <Container>
@@ -192,25 +196,24 @@ const DashboardCard: React.FC = () => {
           </CardContent>
         </Card>
         <FeedbackButtons visible={Number(flipped)}>
-          <button
-            onKeyPress={event => {
-              console.log(event.target);
-            }}
-            type="button"
-            onClick={handleResetCard}
-          >
+          <KeyboardEventHandler
+            handleKeys={['1', '2', '3', '4']}
+            onKeyEvent={(key: number) => handleResetCard(key)}
+            handleFocusableElements
+          />
+          <button type="button" onClick={() => handleResetCard(1)}>
             FÁCIL
             <span>Digite 1</span>
           </button>
-          <button type="button" onClick={handleResetCard}>
+          <button type="button" onClick={() => handleResetCard(2)}>
             BOM
             <span>Digite 2</span>
           </button>
-          <button type="button" onClick={handleResetCard}>
+          <button type="button" onClick={() => handleResetCard(3)}>
             DIFÍCIL
             <span>Digite 3</span>
           </button>
-          <button type="button" onClick={handleResetCard}>
+          <button type="button" onClick={() => handleResetCard(4)}>
             NÃO LEMBRO
             <span>Digite 4</span>
           </button>
