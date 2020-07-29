@@ -19,8 +19,7 @@ font-size: 16px;
 font-family: 'Fira Sans', sans-serif;
 }
 
-h1{
-  font-weight: 600;
+h1, h2, h3{
   font-family: 'IBM Plex Serif', serif;
 }
 
