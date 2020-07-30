@@ -187,10 +187,10 @@ export const CardHeader = styled.div`
     background: transparent;
     transition: 0.2s;
     color: #f24556;
-    transition: 0.5s;
+    transition: 0.2s;
     &:hover {
       color: ${shade(0.2, '#f24556')};
-      transform: rotatey(360deg);
+      transform: scale(1.1);
     }
 
     img {

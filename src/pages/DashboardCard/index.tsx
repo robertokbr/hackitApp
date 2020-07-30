@@ -1,11 +1,14 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowLeft, FiCommand, FiArrowUp } from 'react-icons/fi';
-import { FaInfoCircle, FaTools } from 'react-icons/fa';
+import { FiArrowLeft } from 'react-icons/fi';
+import { FaInfoCircle } from 'react-icons/fa';
 import { useSpring } from 'react-spring';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
-import Axios from 'axios';
+import axios from 'axios';
+import qs from 'qs';
+import { config } from 'process';
+import url from 'url';
 import {
   Container,
   Header,
@@ -25,8 +28,8 @@ import waveImg from '../../assets/waveImg.svg';
 import configIcon from '../../assets/configIcon.svg';
 import cardFlip from '../../assets/cardFlip.svg';
 import api from '../../services/api';
-import apiDataFake from '../../services/fakeData.json';
 
+// import { useFetch } from '../../hooks/useFetch';
 interface FeedbackButtonData {
   cardIndex: number;
   feedbackdata: string;
@@ -58,11 +61,25 @@ const DashboardCard: React.FC = () => {
   });
 
   useEffect(() => {
-    const apiData = Axios.post('https://hackit.app/login', {
+    const requestBody = {
       email: 'qa14@hackit.app',
       password: 'qa14',
-    }).then(response => response.data);
-    console.log(apiData);
+    };
+
+    const axiosConfig = {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    };
+
+    axios
+      .post('https://hackit.app/login', qs.stringify(requestBody), axiosConfig)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }, []);
 
   const handleFlipCard = useCallback(() => {
