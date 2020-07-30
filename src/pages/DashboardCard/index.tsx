@@ -48,8 +48,15 @@ interface CardsData {
 interface NotesData {
   notes: CardsData[];
 }
+interface ApiReturn {
+  data: NotesData[];
+  meta: {
+    code: number;
+  };
+}
 
 const DashboardCard: React.FC = () => {
+  const [data, setData] = useState<ApiReturn | any>([]);
   const [progress, setProgress] = useState(10);
   const [frontCards, setFrontCards] = useState([]);
   const [flipped, setFlipped] = useState(false);
@@ -60,26 +67,33 @@ const DashboardCard: React.FC = () => {
     config: { mass: 5, tension: 500, friction: 80 },
   });
 
+  // useEffect(() => {
+  //   fetch('http://localhost:3333/data')
+  //     .then(response => response.json())
+  //     .then(responseJson => {
+  //       setData(responseJson);
+  //     });
+  // }, []);
+
   useEffect(() => {
-    const requestBody = {
-      email: 'qa14@hackit.app',
-      password: 'qa14',
-    };
+    async function handleAPIdata() {
+      const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+      const targetUrl = 'https://hackit.app/webapi/v2/decks/10/cards';
+      const fetchedApiData: ApiReturn = await fetch(proxyUrl + targetUrl)
+        .then(blob => blob.json())
+        .then(dataApi => {
+          return dataApi;
+        })
+        .catch(e => {
+          return e;
+        });
+      await new Promise(resolve => fetchedApiData.meta.code === 200 && resolve);
+      console.log(fetchedApiData.meta.code);
 
-    const axiosConfig = {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    };
-
-    axios
-      .post('https://hackit.app/login', qs.stringify(requestBody), axiosConfig)
-      .then(result => {
-        console.log(result);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+      return fetchedApiData;
+    }
+    const promiseData = handleAPIdata();
+    setData(promiseData);
   }, []);
 
   const handleFlipCard = useCallback(() => {
@@ -155,7 +169,12 @@ const DashboardCard: React.FC = () => {
             <Player>
               <span>0:30</span>
               <img src={waveImg} alt="wave" />
-              <button type="button">
+              <button
+                type="button"
+                onClick={() => {
+                  console.log(data);
+                }}
+              >
                 <img src={playImg} alt="play" />
               </button>
             </Player>
