@@ -161,6 +161,7 @@ export const Card = styled(a.div)<AnimationProps>`
   display: flex;
   flex-direction: column;
   height: 480px;
+  width: 100%;
   margin-bottom: 80px;
   background: #ffffff;
   border: 1px solid #cde0e2;

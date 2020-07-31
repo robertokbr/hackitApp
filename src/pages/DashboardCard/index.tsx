@@ -172,20 +172,11 @@ const DashboardCard: React.FC = () => {
             </strong>
           </CardHeader>
           <CardContent visible={Number(flipped)}>
-            <h1>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor.
-            </h1>
+            <h1>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h1>
             <Player>
               <span>0:30</span>
               <img src={waveImg} alt="wave" />
-              <button
-                type="button"
-                onClick={() => {
-                  console.log(apiRequestCode);
-                  console.log(allCardsArray);
-                }}
-              >
+              <button type="button" onClick={() => {}}>
                 <img src={playImg} alt="play" />
               </button>
             </Player>
@@ -209,14 +200,8 @@ const DashboardCard: React.FC = () => {
             </strong>
           </CardHeader>
           <CardContent visible={Number(flipped)}>
-            <h3>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor.
-            </h3>
-            <h1>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor.
-            </h1>
+            <h3>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h3>
+            <h1>{allCardsArray[currentCardIndex][1].field}</h1>
             <Player>
               <span>0:30</span>
               <img src={waveImg} alt="wave" />
