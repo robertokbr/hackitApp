@@ -6,6 +6,7 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { useSpring } from 'react-spring';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
 import axios from 'axios';
+import Parser from 'html-react-parser';
 import {
   Container,
   Header,
@@ -58,7 +59,9 @@ const DashboardCard: React.FC = () => {
   const [allCardsArray, setAllCardsArray] = useState<CardsData[][] | null>(
     null,
   );
+  const [currentCardAudio, setCurrentCardAudio] = useState('');
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [allEnglishCard, setAllEnglishCard] = useState<CardsData[]>([]);
   const [progress, setProgress] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [feedbackData, setFeedbackData] = useState<FeedbackButtonData[]>([]);
@@ -69,7 +72,9 @@ const DashboardCard: React.FC = () => {
   });
 
   useEffect(() => {
-    // fetchApi();
+    fetchApi();
+    console.log('Fetch api to get HTTPOnly cookie');
+
     const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     const targetUrl = 'https://hackit.app/webapi/v2/decks/10/cards';
     (async () => {
@@ -77,7 +82,6 @@ const DashboardCard: React.FC = () => {
       const codeReturn = await apiResponse.data.meta;
       const notes = apiResponse.data.data.map(obj => obj.notes);
       setAllCardsArray(notes);
-
       setApiRequestCode(codeReturn.code);
     })();
   }, []);
@@ -89,8 +93,24 @@ const DashboardCard: React.FC = () => {
       ((currentCardIndex + 1) / allCardsArray.length) *
       100
     ).toFixed(2);
+    const englishCardData = allCardsArray.map(card => card[0]);
+
     setProgress(Number(progressData));
-    console.log(progressData);
+    setAllEnglishCard(englishCardData);
+    console.log('all cards: ', allCardsArray);
+  }, [allCardsArray, currentCardIndex]);
+
+  useEffect(() => {
+    if (!allCardsArray) return;
+    const arrayLenght = allCardsArray.map(
+      cards => String(cards[0].field.split('\n')[2]).split(`"`)[1],
+    );
+    const audio = allCardsArray[currentCardIndex][0].field.split('\n')[2];
+
+    const audioSrc = `<audio controls preload="auto">
+    <source src=${audio.split('"')[1]} />
+  </audio>`;
+    setCurrentCardAudio(audioSrc);
   }, [allCardsArray, currentCardIndex]);
 
   const handleFlipCard = useCallback(() => {
@@ -109,7 +129,6 @@ const DashboardCard: React.FC = () => {
     },
     [flipped, allCardsArray],
   );
-  const renderedCards = [];
 
   if (!allCardsArray) {
     return (
@@ -118,6 +137,30 @@ const DashboardCard: React.FC = () => {
       </LoadingScreen>
     );
   }
+  const pages = [
+    <Card
+      visible={Number(!flipped)}
+      className="c back"
+      style={{
+        opacity: opacity.interpolate(o => 1 - (o as number)),
+        transform,
+      }}
+    >
+      <CardHeader>
+        <button type="button" onClick={handleFlipCard}>
+          <img src={cardFlip} alt="Girar Card" />
+          Virar Carta
+        </button>
+        <p>
+          A \ <span>B</span>
+        </p>
+      </CardHeader>
+      <CardContent visible={Number(flipped)}>
+        <h1>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h1>
+        <Player dangerouslySetInnerHTML={{ __html: currentCardAudio }} />
+      </CardContent>
+    </Card>,
+  ];
 
   return (
     <Container>
@@ -154,34 +197,7 @@ const DashboardCard: React.FC = () => {
         </HeaderContent>
       </Header>
       <Content>
-        <Card
-          visible={Number(!flipped)}
-          className="c back"
-          style={{
-            opacity: opacity.interpolate(o => 1 - (o as number)),
-            transform,
-          }}
-        >
-          <CardHeader>
-            <button type="button" onClick={handleFlipCard}>
-              <img src={cardFlip} alt="Girar Card" />
-              Virar Carta
-            </button>
-            <strong>
-              A \ <span>B</span>
-            </strong>
-          </CardHeader>
-          <CardContent visible={Number(flipped)}>
-            <h1>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h1>
-            <Player>
-              <span>0:30</span>
-              <img src={waveImg} alt="wave" />
-              <button type="button" onClick={() => {}}>
-                <img src={playImg} alt="play" />
-              </button>
-            </Player>
-          </CardContent>
-        </Card>
+        {pages[0]}
         <Card
           visible={Number(!flipped)}
           className="c front"
@@ -195,9 +211,9 @@ const DashboardCard: React.FC = () => {
               <img src={cardFlip} alt="Girar Card" />
               Virar Carta
             </button>
-            <strong>
-              <span>B \</span> A
-            </strong>
+            <p>
+              A \<span> B</span>
+            </p>
           </CardHeader>
           <CardContent visible={Number(flipped)}>
             <h3>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h3>
