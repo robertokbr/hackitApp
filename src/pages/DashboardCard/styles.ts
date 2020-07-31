@@ -292,3 +292,12 @@ export const FeedbackButtons = styled.section<AnimationProps>`
     ${props => props.visible && buttonStyle.pressable}
   }
 `;
+
+export const LoadingScreen = styled.div`
+  background: #eef1f8ff;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
