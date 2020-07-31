@@ -174,6 +174,13 @@ export const Card = styled(a.div)<AnimationProps>`
     position: absolute;
     top: 0%;
     visibility: ${props => (props.visible ? 'hidden' : 'visible')};
+    p {
+      color: #c2c2c2;
+
+      > span {
+        color: #000000;
+      }
+    }
   }
 `;
 export const CardHeader = styled.div`
@@ -198,8 +205,7 @@ export const CardHeader = styled.div`
       margin-right: 8px;
     }
   }
-  strong {
-    font-weight: 500;
+  p {
     span {
       color: #c2c2c2;
     }
