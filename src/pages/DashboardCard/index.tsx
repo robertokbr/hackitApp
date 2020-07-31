@@ -27,7 +27,7 @@ import configIcon from '../../assets/configIcon.svg';
 import cardFlip from '../../assets/cardFlip.svg';
 import { fetchApi } from '../../services/fetchApi';
 import loadingGif from '../../assets/loadingGif.gif';
-// import { useFetch } from '../../hooks/useFetch';
+
 interface FeedbackButtonData {
   cardIndex: number;
   feedbackdata: string;
@@ -36,9 +36,9 @@ interface CardsData {
   cardId: number;
   dateCreated: number;
   dateUpdated: number;
-  field: string;
+  field: 'Front' | 'Back';
   fieldName: string;
-  fieldNumber: number;
+  fieldNumber: 0 | 1;
   id: number;
   noteType: number;
 }
@@ -54,11 +54,13 @@ interface ApiReturn {
 }
 
 const DashboardCard: React.FC = () => {
+  const [apiRequestCode, setApiRequestCode] = useState(0);
   const [apiResponseData, setApiResponseData] = useState<NotesData[] | null>(
     null,
   );
-  const [progress, setProgress] = useState(10);
-  const [apiRequestCode, setApiRequestCode] = useState(0);
+  const [notesData, setNotesData] = useState<NotesData>([]);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [feedbackData, setFeedbackData] = useState<FeedbackButtonData[]>([]);
   const { transform, opacity } = useSpring({
@@ -79,6 +81,16 @@ const DashboardCard: React.FC = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    if (!apiResponseData) return;
+    const notes = apiResponseData.map(noteData => noteData.notes);
+    const progressData = (currentCardIndex + (1 / notes?.length) * 100).toFixed(
+      2,
+    );
+    setProgress(Number(progressData));
+    setNotesData;
+  }, [apiResponseData, currentCardIndex]);
+
   const handleFlipCard = useCallback(() => {
     setFlipped(state => !state);
   }, []);
@@ -87,10 +99,47 @@ const DashboardCard: React.FC = () => {
       if (!flipped) return;
       setFlipped(state => !state);
 
-      setProgress(state => state + 10);
+      setProgress(state => state + 1);
     },
     [flipped],
   );
+  const renderedCards = [
+    <Card
+      visible={Number(!flipped)}
+      className="c front"
+      style={{
+        opacity,
+        transform: transform.interpolate(t => `${t} rotatey(180deg)`),
+      }}
+    >
+      <CardHeader>
+        <button type="button" onClick={handleFlipCard}>
+          <img src={cardFlip} alt="Girar Card" />
+          Virar Carta
+        </button>
+        <strong>
+          <span>B \</span> A
+        </strong>
+      </CardHeader>
+      <CardContent visible={Number(flipped)}>
+        <h3>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor.
+        </h3>
+        <h1>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor.
+        </h1>
+        <Player>
+          <span>0:30</span>
+          <img src={waveImg} alt="wave" />
+          <button type="button">
+            <img src={playImg} alt="play" />
+          </button>
+        </Player>
+      </CardContent>
+    </Card>,
+  ];
 
   if (!apiResponseData) {
     return (
@@ -172,42 +221,8 @@ const DashboardCard: React.FC = () => {
             </Player>
           </CardContent>
         </Card>
+        {renderedCards[0]}
 
-        <Card
-          visible={Number(!flipped)}
-          className="c front"
-          style={{
-            opacity,
-            transform: transform.interpolate(t => `${t} rotatey(180deg)`),
-          }}
-        >
-          <CardHeader>
-            <button type="button" onClick={handleFlipCard}>
-              <img src={cardFlip} alt="Girar Card" />
-              Virar Carta
-            </button>
-            <strong>
-              <span>B \</span> A
-            </strong>
-          </CardHeader>
-          <CardContent visible={Number(flipped)}>
-            <h3>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor.
-            </h3>
-            <h1>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor.
-            </h1>
-            <Player>
-              <span>0:30</span>
-              <img src={waveImg} alt="wave" />
-              <button type="button">
-                <img src={playImg} alt="play" />
-              </button>
-            </Player>
-          </CardContent>
-        </Card>
         <FeedbackButtons visible={Number(flipped)}>
           <KeyboardEventHandler
             handleKeys={['1', '2', '3', '4']}
