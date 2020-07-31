@@ -156,13 +156,22 @@ export const Content = styled.main`
   margin: 146px auto;
   position: relative;
 `;
-export const Card = styled(a.div)<AnimationProps>`
+
+export const CardContainer = styled(a.div)`
+  position: absolute;
   flex: 1;
   display: flex;
-  flex-direction: column;
   height: 480px;
   width: 100%;
   margin-bottom: 80px;
+  position: relative;
+`;
+export const Card = styled(a.div)<AnimationProps>`
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   background: #ffffff;
   border: 1px solid #cde0e2;
   padding: 26px 32px 40px 35px;
@@ -240,11 +249,12 @@ export const Player = styled.div`
   display: flex;
   height: 81px;
   max-width: 881px;
-  position: relative;
-  span {
-    font-size: 14px;
-    position: absolute;
+  align-items: center;
+  justify-content: space-between;
+  div:first-child {
+    margin: 0;
   }
+
   div {
     display: flex;
     margin-left: auto;

@@ -5,8 +5,9 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { useSpring } from 'react-spring';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
 import axios from 'axios';
-
-import { AudioPlayerProvider } from 'react-use-audio-player';
+import Lottie from 'lottie-react-web';
+import { AudioPlayerProvider, useAudioPlayer } from 'react-use-audio-player';
+import lottieAnimation from '../../assets/lottie.json';
 import {
   Container,
   Header,
@@ -20,6 +21,7 @@ import {
   Player,
   FeedbackButtons,
   LoadingScreen,
+  CardContainer,
 } from './styles';
 import logoImg from '../../assets/logo.svg';
 
@@ -27,7 +29,8 @@ import configIcon from '../../assets/configIcon.svg';
 import cardFlip from '../../assets/cardFlip.svg';
 import { fetchApi } from '../../services/fetchApi';
 import loadingGif from '../../assets/loadingGif.gif';
-import AudioPlayer from '../../components/AudioPlayer';
+import { AudioPlayer } from '../../components/AudioPlayer';
+import waveImg from '../../assets/waveImg.svg';
 
 interface FeedbackButtonData {
   cardIndex: number;
@@ -55,6 +58,8 @@ interface ApiReturn {
 }
 
 const DashboardCard: React.FC = () => {
+  const [isAudioPlay, setisAudioPlay] = useState(false);
+  const [feedbackData, setFeedbackData] = useState<FeedbackButtonData[]>([]);
   const [allCardsArray, setAllCardsArray] = useState<CardsData[][] | null>(
     null,
   );
@@ -62,18 +67,18 @@ const DashboardCard: React.FC = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [feedbackData, setFeedbackData] = useState<FeedbackButtonData[]>([]);
   const { transform, opacity } = useSpring({
     opacity: flipped ? 1 : 0,
     transform: `perspective(600px) rotatey(${flipped ? 180 : 0}deg)`,
     config: { mass: 5, tension: 500, friction: 80 },
   });
+  const { playing, stopped } = useAudioPlayer();
 
   useEffect(() => {
     if (!document.cookie) {
       fetchApi();
 
-      console.log('Fetch api to get HTTPOnly cookie');
+      console.log('Fetching api to get HTTPOnly cookie');
     }
     const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     const targetUrl = 'https://hackit.app/webapi/v2/decks/10/cards';
@@ -103,6 +108,10 @@ const DashboardCard: React.FC = () => {
     setAudioArray(audioArrayData);
   }, [allCardsArray, currentCardIndex]);
 
+  const handleAudioState = useCallback((value: boolean) => {
+    setisAudioPlay(value);
+  }, []);
+
   const handleFlipCard = useCallback(() => {
     setFlipped(state => !state);
   }, []);
@@ -117,13 +126,21 @@ const DashboardCard: React.FC = () => {
       }
       setCurrentCardIndex(state => state + 1);
     },
-    [flipped, allCardsArray],
+    [allCardsArray, currentCardIndex, flipped],
   );
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: lottieAnimation,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice',
+    },
+  };
 
   if (!allCardsArray) {
     return (
       <LoadingScreen>
-        <img src={loadingGif} alt="Loading..." />
+        <img src={loadingGif} style={{ width: '200px' }} alt="Loading..." />
       </LoadingScreen>
     );
   }
@@ -163,72 +180,120 @@ const DashboardCard: React.FC = () => {
         </HeaderContent>
       </Header>
       <Content>
-        <Card
-          visible={Number(!flipped)}
-          className="c back"
-          style={{
-            opacity: opacity.interpolate(o => 1 - (o as number)),
-            transform,
-          }}
-        >
-          <CardHeader>
-            <button type="button" onClick={handleFlipCard}>
-              <img src={cardFlip} alt="Girar Card" />
-              Virar Carta
-            </button>
-            <p>
-              A \ <span>B</span>
-            </p>
-          </CardHeader>
-          <CardContent visible={Number(flipped)}>
-            <h1>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h1>
-            <Player>
-              <div>
-                <AudioPlayerProvider>
-                  <AudioPlayer file={audioArray[currentCardIndex]} />
-                </AudioPlayerProvider>
-              </div>
-            </Player>
-          </CardContent>
-        </Card>
+        <CardContainer>
+          <Card
+            visible={Number(!flipped)}
+            className="c back"
+            style={{
+              opacity: opacity.interpolate(o => 1 - (o as number)),
+              transform,
+            }}
+          >
+            <CardHeader>
+              <button type="button" onClick={handleFlipCard}>
+                <img src={cardFlip} alt="Girar Card" />
+                Virar Carta
+              </button>
+              <p>
+                A \ <span>B</span>
+              </p>
+            </CardHeader>
+            <CardContent visible={Number(flipped)}>
+              <h1>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h1>
+              <Player>
+                {isAudioPlay ? (
+                  <img src={waveImg} alt="Wave" />
+                ) : (
+                  <>
+                    <Lottie
+                      style={{ margin: 0 }}
+                      options={defaultOptions}
+                      height={100}
+                      width={200}
+                    />
+                    <Lottie
+                      style={{ margin: 0 }}
+                      options={defaultOptions}
+                      height={100}
+                      width={200}
+                    />
+                  </>
+                )}
+                <div>
+                  <AudioPlayer
+                    onPlayed={value => {
+                      handleAudioState(value);
+                    }}
+                    file={audioArray[currentCardIndex]}
+                  />
+                </div>
+              </Player>
+            </CardContent>
+          </Card>
+          <Card
+            visible={Number(!flipped)}
+            className="c front"
+            style={{
+              opacity,
+              transform: transform.interpolate(t => `${t} rotatey(180deg)`),
+            }}
+          >
+            <CardHeader>
+              <button type="button" onClick={handleFlipCard}>
+                <img src={cardFlip} alt="Girar Card" />
+                Virar Carta
+              </button>
+              <p>
+                A \ <span> B</span>
+              </p>
+            </CardHeader>
+            <CardContent visible={Number(flipped)}>
+              <h3>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h3>
+              <h1>{allCardsArray[currentCardIndex][1].field}</h1>
+              <Player>
+                {isAudioPlay ? (
+                  <img src={waveImg} alt="Wave" />
+                ) : (
+                  <>
+                    <Lottie
+                      style={{ margin: 0 }}
+                      options={defaultOptions}
+                      height={100}
+                      width={200}
+                    />
+                    <Lottie
+                      style={{ margin: 0 }}
+                      options={defaultOptions}
+                      height={100}
+                      width={200}
+                    />
+                  </>
+                )}
+                <div>
+                  <AudioPlayer
+                    onPlayed={value => {
+                      handleAudioState(value);
+                    }}
+                    file={audioArray[currentCardIndex]}
+                  />
+                </div>
+              </Player>
+            </CardContent>
+          </Card>
+        </CardContainer>
 
-        <Card
-          visible={Number(!flipped)}
-          className="c front"
-          style={{
-            opacity,
-            transform: transform.interpolate(t => `${t} rotatey(180deg)`),
-          }}
-        >
-          <CardHeader>
-            <button type="button" onClick={handleFlipCard}>
-              <img src={cardFlip} alt="Girar Card" />
-              Virar Carta
-            </button>
-            <p>
-              A \ <span> B</span>
-            </p>
-          </CardHeader>
-          <CardContent visible={Number(flipped)}>
-            <h3>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h3>
-            <h1>{allCardsArray[currentCardIndex][1].field}</h1>
-            <Player>
-              <span>0:30</span>
-              <div>
-                <AudioPlayerProvider>
-                  <AudioPlayer file={audioArray[currentCardIndex]} />
-                </AudioPlayerProvider>
-              </div>
-            </Player>
-          </CardContent>
-        </Card>
         <FeedbackButtons visible={Number(flipped)}>
           <KeyboardEventHandler
             handleKeys={['1', '2', '3', '4']}
             onKeyEvent={(key: number) => handleNextCard(key)}
             handleFocusableElements
           />
-          <button type="button" onClick={() => handleNextCard(1)}>
+          <button
+            type="button"
+            onClick={() => {
+              handleNextCard(1);
+            }}
+          >
             FÁCIL
             <span>Digite 1</span>
           </button>
