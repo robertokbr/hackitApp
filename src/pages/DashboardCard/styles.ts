@@ -245,17 +245,20 @@ export const Player = styled.div`
     font-size: 14px;
     position: absolute;
   }
-  button {
+  div {
+    display: flex;
     margin-left: auto;
-    width: 74px;
-    height: 74px;
-    border-radius: 50%;
-    border: none;
-    background: #00aee0;
-    transition: 0.2s;
+    button {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      border: none;
+      background: #00aee0;
+      transition: 0.2s;
 
-    &:hover {
-      background: ${shade(0.2, '#00aee0')};
+      &:hover {
+        background: ${shade(0.2, '#00aee0')};
+      }
     }
   }
 `;

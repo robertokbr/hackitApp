@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-one-expression-per-line */
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -6,7 +5,8 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { useSpring } from 'react-spring';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
 import axios from 'axios';
-import Parser from 'html-react-parser';
+
+import { AudioPlayerProvider } from 'react-use-audio-player';
 import {
   Container,
   Header,
@@ -22,12 +22,12 @@ import {
   LoadingScreen,
 } from './styles';
 import logoImg from '../../assets/logo.svg';
-import playImg from '../../assets/play.svg';
-import waveImg from '../../assets/waveImg.svg';
+
 import configIcon from '../../assets/configIcon.svg';
 import cardFlip from '../../assets/cardFlip.svg';
 import { fetchApi } from '../../services/fetchApi';
 import loadingGif from '../../assets/loadingGif.gif';
+import AudioPlayer from '../../components/AudioPlayer';
 
 interface FeedbackButtonData {
   cardIndex: number;
@@ -55,13 +55,11 @@ interface ApiReturn {
 }
 
 const DashboardCard: React.FC = () => {
-  const [apiRequestCode, setApiRequestCode] = useState(0);
   const [allCardsArray, setAllCardsArray] = useState<CardsData[][] | null>(
     null,
   );
   const [audioArray, setAudioArray] = useState(['']);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [allEnglishCard, setAllEnglishCard] = useState<CardsData[]>([]);
   const [progress, setProgress] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [feedbackData, setFeedbackData] = useState<FeedbackButtonData[]>([]);
@@ -81,10 +79,8 @@ const DashboardCard: React.FC = () => {
     const targetUrl = 'https://hackit.app/webapi/v2/decks/10/cards';
     (async () => {
       const apiResponse = await axios.get<ApiReturn>(proxyUrl + targetUrl);
-      const codeReturn = await apiResponse.data.meta;
       const notes = apiResponse.data.data.map(obj => obj.notes);
       setAllCardsArray(notes);
-      setApiRequestCode(codeReturn.code);
     })();
   }, []);
 
@@ -95,20 +91,15 @@ const DashboardCard: React.FC = () => {
       ((currentCardIndex + 1) / allCardsArray.length) *
       100
     ).toFixed(2);
-    const englishCardData = allCardsArray.map(card => card[0]);
 
     setProgress(Number(progressData));
-    setAllEnglishCard(englishCardData);
   }, [allCardsArray, currentCardIndex]);
 
   useEffect(() => {
     if (!allCardsArray) return;
     const audioArrayData = allCardsArray.map(
-      cards => `<audio controls preload="auto">
-      <source src=${String(cards[0].field.split('\n')[2]).split(`"`)[1]} />
-    </audio>`,
+      cards => String(cards[0].field.split('\n')[2]).split(`"`)[1],
     );
-
     setAudioArray(audioArrayData);
   }, [allCardsArray, currentCardIndex]);
 
@@ -137,8 +128,6 @@ const DashboardCard: React.FC = () => {
     );
   }
 
-  const pages = [];
-
   return (
     <Container>
       <Header>
@@ -154,7 +143,7 @@ const DashboardCard: React.FC = () => {
             </button>
             <div>
               <div />
-              <span>{progress}%</span>
+              <span> {progress}%</span>
             </div>
             <strong>
               {currentCardIndex + 1}/<span>{allCardsArray.length}</span>
@@ -174,42 +163,34 @@ const DashboardCard: React.FC = () => {
         </HeaderContent>
       </Header>
       <Content>
-        {pages.push(
-          audioArray.map(audio => (
-            <Card
-              visible={Number(!flipped)}
-              className="c back"
-              style={{
-                opacity: opacity.interpolate(o => 1 - (o as number)),
-                transform,
-              }}
-            >
-              <CardHeader>
-                <button type="button" onClick={handleFlipCard}>
-                  <img src={cardFlip} alt="Girar Card" />
-                  Virar Carta
-                </button>
-                <p>
-                  A \ <span>B</span>
-                </p>
-              </CardHeader>
-              <CardContent visible={Number(flipped)}>
-                <h1>
-                  {
-                    allCardsArray[audioArray.indexOf(audio)][0].field.split(
-                      '\n',
-                    )[0]
-                  }
-                </h1>
-                <Player
-                  dangerouslySetInnerHTML={{
-                    __html: audioArray[audioArray.indexOf(audio)],
-                  }}
-                />
-              </CardContent>
-            </Card>
-          )),
-        )}
+        <Card
+          visible={Number(!flipped)}
+          className="c back"
+          style={{
+            opacity: opacity.interpolate(o => 1 - (o as number)),
+            transform,
+          }}
+        >
+          <CardHeader>
+            <button type="button" onClick={handleFlipCard}>
+              <img src={cardFlip} alt="Girar Card" />
+              Virar Carta
+            </button>
+            <p>
+              A \ <span>B</span>
+            </p>
+          </CardHeader>
+          <CardContent visible={Number(flipped)}>
+            <h1>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h1>
+            <Player>
+              <div>
+                <AudioPlayerProvider>
+                  <AudioPlayer file={audioArray[currentCardIndex]} />
+                </AudioPlayerProvider>
+              </div>
+            </Player>
+          </CardContent>
+        </Card>
 
         <Card
           visible={Number(!flipped)}
@@ -225,7 +206,7 @@ const DashboardCard: React.FC = () => {
               Virar Carta
             </button>
             <p>
-              A \<span> B</span>
+              A \ <span> B</span>
             </p>
           </CardHeader>
           <CardContent visible={Number(flipped)}>
@@ -233,14 +214,14 @@ const DashboardCard: React.FC = () => {
             <h1>{allCardsArray[currentCardIndex][1].field}</h1>
             <Player>
               <span>0:30</span>
-              <img src={waveImg} alt="wave" />
-              <button type="button">
-                <img src={playImg} alt="play" />
-              </button>
+              <div>
+                <AudioPlayerProvider>
+                  <AudioPlayer file={audioArray[currentCardIndex]} />
+                </AudioPlayerProvider>
+              </div>
             </Player>
           </CardContent>
         </Card>
-
         <FeedbackButtons visible={Number(flipped)}>
           <KeyboardEventHandler
             handleKeys={['1', '2', '3', '4']}
