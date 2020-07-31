@@ -55,10 +55,9 @@ interface ApiReturn {
 
 const DashboardCard: React.FC = () => {
   const [apiRequestCode, setApiRequestCode] = useState(0);
-  const [apiResponseData, setApiResponseData] = useState<NotesData[] | null>(
+  const [allCardsArray, setAllCardsArray] = useState<CardsData[][] | null>(
     null,
   );
-  const [notesData, setNotesData] = useState<NotesData>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -76,72 +75,43 @@ const DashboardCard: React.FC = () => {
     (async () => {
       const apiResponse = await axios.get<ApiReturn>(proxyUrl + targetUrl);
       const codeReturn = await apiResponse.data.meta;
+      const notes = apiResponse.data.data.map(obj => obj.notes);
+      setAllCardsArray(notes);
+
       setApiRequestCode(codeReturn.code);
-      setApiResponseData(apiResponse.data.data);
     })();
   }, []);
 
   useEffect(() => {
-    if (!apiResponseData) return;
-    const notes = apiResponseData.map(noteData => noteData.notes);
-    const progressData = (currentCardIndex + (1 / notes?.length) * 100).toFixed(
-      2,
-    );
+    if (!allCardsArray) return;
+
+    const progressData = (
+      ((currentCardIndex + 1) / allCardsArray.length) *
+      100
+    ).toFixed(2);
     setProgress(Number(progressData));
-    setNotesData;
-  }, [apiResponseData, currentCardIndex]);
+    console.log(progressData);
+  }, [allCardsArray, currentCardIndex]);
 
   const handleFlipCard = useCallback(() => {
     setFlipped(state => !state);
   }, []);
-  const handleResetCard = useCallback(
+
+  const handleNextCard = useCallback(
     (key: number) => {
-      if (!flipped) return;
+      if (!flipped || !allCardsArray) return;
       setFlipped(state => !state);
-
-      setProgress(state => state + 1);
+      if (allCardsArray.length - 1 === currentCardIndex) {
+        setCurrentCardIndex(0);
+        return;
+      }
+      setCurrentCardIndex(state => state + 1);
     },
-    [flipped],
+    [flipped, allCardsArray],
   );
-  const renderedCards = [
-    <Card
-      visible={Number(!flipped)}
-      className="c front"
-      style={{
-        opacity,
-        transform: transform.interpolate(t => `${t} rotatey(180deg)`),
-      }}
-    >
-      <CardHeader>
-        <button type="button" onClick={handleFlipCard}>
-          <img src={cardFlip} alt="Girar Card" />
-          Virar Carta
-        </button>
-        <strong>
-          <span>B \</span> A
-        </strong>
-      </CardHeader>
-      <CardContent visible={Number(flipped)}>
-        <h3>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor.
-        </h3>
-        <h1>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor.
-        </h1>
-        <Player>
-          <span>0:30</span>
-          <img src={waveImg} alt="wave" />
-          <button type="button">
-            <img src={playImg} alt="play" />
-          </button>
-        </Player>
-      </CardContent>
-    </Card>,
-  ];
+  const renderedCards = [];
 
-  if (!apiResponseData) {
+  if (!allCardsArray) {
     return (
       <LoadingScreen>
         <img src={loadingGif} alt="Loading..." />
@@ -164,10 +134,10 @@ const DashboardCard: React.FC = () => {
             </button>
             <div>
               <div />
-              <span>1%</span>
+              <span>{progress}%</span>
             </div>
             <strong>
-              {progress / 10}/<span>12</span>
+              {currentCardIndex + 1}/<span>{allCardsArray.length}</span>
             </strong>
           </ProgressBar>
           <HeaderButton>
@@ -213,7 +183,7 @@ const DashboardCard: React.FC = () => {
                 type="button"
                 onClick={() => {
                   console.log(apiRequestCode);
-                  console.log(apiResponseData);
+                  console.log(allCardsArray);
                 }}
               >
                 <img src={playImg} alt="play" />
@@ -221,27 +191,61 @@ const DashboardCard: React.FC = () => {
             </Player>
           </CardContent>
         </Card>
-        {renderedCards[0]}
+        <Card
+          visible={Number(!flipped)}
+          className="c front"
+          style={{
+            opacity,
+            transform: transform.interpolate(t => `${t} rotatey(180deg)`),
+          }}
+        >
+          <CardHeader>
+            <button type="button" onClick={handleFlipCard}>
+              <img src={cardFlip} alt="Girar Card" />
+              Virar Carta
+            </button>
+            <strong>
+              <span>B \</span> A
+            </strong>
+          </CardHeader>
+          <CardContent visible={Number(flipped)}>
+            <h3>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor.
+            </h3>
+            <h1>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor.
+            </h1>
+            <Player>
+              <span>0:30</span>
+              <img src={waveImg} alt="wave" />
+              <button type="button">
+                <img src={playImg} alt="play" />
+              </button>
+            </Player>
+          </CardContent>
+        </Card>
 
         <FeedbackButtons visible={Number(flipped)}>
           <KeyboardEventHandler
             handleKeys={['1', '2', '3', '4']}
-            onKeyEvent={(key: number) => handleResetCard(key)}
+            onKeyEvent={(key: number) => handleNextCard(key)}
             handleFocusableElements
           />
-          <button type="button" onClick={() => handleResetCard(1)}>
+          <button type="button" onClick={() => handleNextCard(1)}>
             FÁCIL
             <span>Digite 1</span>
           </button>
-          <button type="button" onClick={() => handleResetCard(2)}>
+          <button type="button" onClick={() => handleNextCard(2)}>
             BOM
             <span>Digite 2</span>
           </button>
-          <button type="button" onClick={() => handleResetCard(3)}>
+          <button type="button" onClick={() => handleNextCard(3)}>
             DIFÍCIL
             <span>Digite 3</span>
           </button>
-          <button type="button" onClick={() => handleResetCard(4)}>
+          <button type="button" onClick={() => handleNextCard(4)}>
             NÃO LEMBRO
             <span>Digite 4</span>
           </button>
