@@ -59,7 +59,7 @@ const DashboardCard: React.FC = () => {
   const [allCardsArray, setAllCardsArray] = useState<CardsData[][] | null>(
     null,
   );
-  const [currentCardAudio, setCurrentCardAudio] = useState('');
+  const [audioArray, setAudioArray] = useState(['']);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [allEnglishCard, setAllEnglishCard] = useState<CardsData[]>([]);
   const [progress, setProgress] = useState(0);
@@ -72,9 +72,11 @@ const DashboardCard: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchApi();
-    console.log('Fetch api to get HTTPOnly cookie');
+    if (!document.cookie) {
+      fetchApi();
 
+      console.log('Fetch api to get HTTPOnly cookie');
+    }
     const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     const targetUrl = 'https://hackit.app/webapi/v2/decks/10/cards';
     (async () => {
@@ -97,20 +99,17 @@ const DashboardCard: React.FC = () => {
 
     setProgress(Number(progressData));
     setAllEnglishCard(englishCardData);
-    console.log('all cards: ', allCardsArray);
   }, [allCardsArray, currentCardIndex]);
 
   useEffect(() => {
     if (!allCardsArray) return;
-    const arrayLenght = allCardsArray.map(
-      cards => String(cards[0].field.split('\n')[2]).split(`"`)[1],
+    const audioArrayData = allCardsArray.map(
+      cards => `<audio controls preload="auto">
+      <source src=${String(cards[0].field.split('\n')[2]).split(`"`)[1]} />
+    </audio>`,
     );
-    const audio = allCardsArray[currentCardIndex][0].field.split('\n')[2];
 
-    const audioSrc = `<audio controls preload="auto">
-    <source src=${audio.split('"')[1]} />
-  </audio>`;
-    setCurrentCardAudio(audioSrc);
+    setAudioArray(audioArrayData);
   }, [allCardsArray, currentCardIndex]);
 
   const handleFlipCard = useCallback(() => {
@@ -137,30 +136,8 @@ const DashboardCard: React.FC = () => {
       </LoadingScreen>
     );
   }
-  const pages = [
-    <Card
-      visible={Number(!flipped)}
-      className="c back"
-      style={{
-        opacity: opacity.interpolate(o => 1 - (o as number)),
-        transform,
-      }}
-    >
-      <CardHeader>
-        <button type="button" onClick={handleFlipCard}>
-          <img src={cardFlip} alt="Girar Card" />
-          Virar Carta
-        </button>
-        <p>
-          A \ <span>B</span>
-        </p>
-      </CardHeader>
-      <CardContent visible={Number(flipped)}>
-        <h1>{allCardsArray[currentCardIndex][0].field.split('\n')[0]}</h1>
-        <Player dangerouslySetInnerHTML={{ __html: currentCardAudio }} />
-      </CardContent>
-    </Card>,
-  ];
+
+  const pages = [];
 
   return (
     <Container>
@@ -197,7 +174,43 @@ const DashboardCard: React.FC = () => {
         </HeaderContent>
       </Header>
       <Content>
-        {pages[0]}
+        {pages.push(
+          audioArray.map(audio => (
+            <Card
+              visible={Number(!flipped)}
+              className="c back"
+              style={{
+                opacity: opacity.interpolate(o => 1 - (o as number)),
+                transform,
+              }}
+            >
+              <CardHeader>
+                <button type="button" onClick={handleFlipCard}>
+                  <img src={cardFlip} alt="Girar Card" />
+                  Virar Carta
+                </button>
+                <p>
+                  A \ <span>B</span>
+                </p>
+              </CardHeader>
+              <CardContent visible={Number(flipped)}>
+                <h1>
+                  {
+                    allCardsArray[audioArray.indexOf(audio)][0].field.split(
+                      '\n',
+                    )[0]
+                  }
+                </h1>
+                <Player
+                  dangerouslySetInnerHTML={{
+                    __html: audioArray[audioArray.indexOf(audio)],
+                  }}
+                />
+              </CardContent>
+            </Card>
+          )),
+        )}
+
         <Card
           visible={Number(!flipped)}
           className="c front"
