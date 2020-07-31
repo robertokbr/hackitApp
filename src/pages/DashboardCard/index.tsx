@@ -6,9 +6,6 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { useSpring } from 'react-spring';
 import KeyboardEventHandler from 'react-keyboard-event-handler';
 import axios from 'axios';
-import qs from 'qs';
-import { config } from 'process';
-import url from 'url';
 import {
   Container,
   Header,
@@ -21,14 +18,15 @@ import {
   CardContent,
   Player,
   FeedbackButtons,
+  LoadingScreen,
 } from './styles';
 import logoImg from '../../assets/logo.svg';
 import playImg from '../../assets/play.svg';
 import waveImg from '../../assets/waveImg.svg';
 import configIcon from '../../assets/configIcon.svg';
 import cardFlip from '../../assets/cardFlip.svg';
-import api from '../../services/api';
-
+import { fetchApi } from '../../services/fetchApi';
+import loadingGif from '../../assets/loadingGif.gif';
 // import { useFetch } from '../../hooks/useFetch';
 interface FeedbackButtonData {
   cardIndex: number;
@@ -56,9 +54,11 @@ interface ApiReturn {
 }
 
 const DashboardCard: React.FC = () => {
-  const [data, setData] = useState<ApiReturn | any>([]);
+  const [apiResponseData, setApiResponseData] = useState<NotesData[] | null>(
+    null,
+  );
   const [progress, setProgress] = useState(10);
-  const [frontCards, setFrontCards] = useState([]);
+  const [apiRequestCode, setApiRequestCode] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [feedbackData, setFeedbackData] = useState<FeedbackButtonData[]>([]);
   const { transform, opacity } = useSpring({
@@ -67,33 +67,16 @@ const DashboardCard: React.FC = () => {
     config: { mass: 5, tension: 500, friction: 80 },
   });
 
-  // useEffect(() => {
-  //   fetch('http://localhost:3333/data')
-  //     .then(response => response.json())
-  //     .then(responseJson => {
-  //       setData(responseJson);
-  //     });
-  // }, []);
-
   useEffect(() => {
-    async function handleAPIdata() {
-      const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-      const targetUrl = 'https://hackit.app/webapi/v2/decks/10/cards';
-      const fetchedApiData: ApiReturn = await fetch(proxyUrl + targetUrl)
-        .then(blob => blob.json())
-        .then(dataApi => {
-          return dataApi;
-        })
-        .catch(e => {
-          return e;
-        });
-      await new Promise(resolve => fetchedApiData.meta.code === 200 && resolve);
-      console.log(fetchedApiData.meta.code);
-
-      return fetchedApiData;
-    }
-    const promiseData = handleAPIdata();
-    setData(promiseData);
+    // fetchApi();
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    const targetUrl = 'https://hackit.app/webapi/v2/decks/10/cards';
+    (async () => {
+      const apiResponse = await axios.get<ApiReturn>(proxyUrl + targetUrl);
+      const codeReturn = await apiResponse.data.meta;
+      setApiRequestCode(codeReturn.code);
+      setApiResponseData(apiResponse.data.data);
+    })();
   }, []);
 
   const handleFlipCard = useCallback(() => {
@@ -108,6 +91,14 @@ const DashboardCard: React.FC = () => {
     },
     [flipped],
   );
+
+  if (!apiResponseData) {
+    return (
+      <LoadingScreen>
+        <img src={loadingGif} alt="Loading..." />
+      </LoadingScreen>
+    );
+  }
 
   return (
     <Container>
@@ -172,7 +163,8 @@ const DashboardCard: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  console.log(data);
+                  console.log(apiRequestCode);
+                  console.log(apiResponseData);
                 }}
               >
                 <img src={playImg} alt="play" />
